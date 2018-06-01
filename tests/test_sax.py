@@ -19,7 +19,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from ikats.algo.core.sax.sax import run_sax_from_tsuid, run_sax_from_ds, run_sax_from_ts_list, LOGGER
+from ikats.algo.op-sax.sax import run_sax_from_tsuid, run_sax_from_ds, run_sax_from_ts_list, LOGGER
 from ikats.core.resource.api import IkatsApi
 from ikats.core.resource.client import TemporalDataMgr
 

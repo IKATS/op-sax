@@ -19,8 +19,8 @@ import logging
 import pyspark.rdd
 from scipy.stats import pearsonr
 import numpy as np
-from ikats.algo.core.paa import run_paa
-from ikats.algo.core.sax import SAX
+from ikats.algo.op-paa import run_paa
+from ikats.algo.op-sax import SAX
 from ikats.core.library.exception import IkatsException
 from ikats.core.resource.api import IkatsApi
 
