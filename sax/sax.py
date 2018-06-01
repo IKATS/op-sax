@@ -19,7 +19,7 @@ import numpy as np
 
 from ikats.core.data.ts import TimestampedMonoVal
 from ikats.core.library.spark import ScManager, ListAccumulatorParam
-from ikats.algo.op-paa import run_paa
+from ikats.algo.paa import run_paa
 
 from ikats.core.resource.client import TemporalDataMgr
 
