@@ -21,9 +21,9 @@ import mock
 import numpy as np
 from numpy.random import normal, uniform
 
-from ikats.algo.core.pattern.random_proj import ConfigSax
-from ikats.algo.core.sax.sax import SAX
-from ikats.algo.core.sax.sliding_sax import sliding_windows, run_sax_on_sequences
+from ikats.algo.pattern.random_proj import ConfigSax
+from ikats.algo.sax.sax import SAX
+from ikats.algo.sax.sliding_sax import sliding_windows, run_sax_on_sequences
 from ikats.core.library.spark import ScManager
 
 LOGGER = logging.getLogger(__name__)

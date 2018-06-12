@@ -16,10 +16,10 @@ limitations under the License.
 """
 # Simplify the import patterns for user
 # Instead of importing :
-#   from ikats.algo.core.sax.sax import SAX, run_sax, run_sax_from_ds, run_sax_from_ts_list, run_sax_from_tsuid
+#   from ikats.algo.sax.sax import SAX, run_sax, run_sax_from_ds, run_sax_from_ts_list, run_sax_from_tsuid
 # User will do:
-#   from ikats.algo.core.sax import  SAX, run_sax, run_sax_from_ds, run_sax_from_ts_list, run_sax_from_tsuid
+#   from ikats.algo.sax import  SAX, run_sax, run_sax_from_ds, run_sax_from_ts_list, run_sax_from_tsuid
 
 from pkgutil import extend_path
-from ikats.algo.core.sax.sax import SAX, run_sax, run_sax_from_ds, run_sax_from_ts_list, run_sax_from_tsuid
+from ikats.algo.sax.sax import SAX, run_sax, run_sax_from_ds, run_sax_from_ts_list, run_sax_from_tsuid
 __path__ = extend_path(__path__, __name__)
