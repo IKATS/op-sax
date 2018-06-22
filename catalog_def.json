@@ -3,7 +3,7 @@
   "label": "SAX",
   "description": "Performs the Symbolic Aggregate Approximation (SAX): implementation configured without spark distribution",
   "family": "Preprocessing_TS__Transforming",
-  "entry_point": "ikats.algo.sax.sax::run_sax_from_ds",
+  "entry_point": "sax.sax::run_sax_from_ds",
   "inputs": [
     {
       "name": "dsname",
