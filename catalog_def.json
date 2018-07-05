@@ -1,0 +1,37 @@
+{
+  "name": "sax_ds",
+  "label": "SAX",
+  "description": "Performs the Symbolic Aggregate Approximation (SAX): implementation configured without spark distribution",
+  "family": "Preprocessing_TS__Transforming",
+  "entry_point": "sax.sax::run_sax_from_ds",
+  "inputs": [
+    {
+      "name": "dsname",
+      "label": "DSname",
+      "description": "The name of the dataset where SAX is applied",
+      "type": "ds_name"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "alphabet_size",
+      "description": "The size of the computed SAX alphabet",
+      "type": "number",
+      "label": "alphabet size"
+    },
+    {
+      "name": "word_size",
+      "description": "The number of PAA segments computed before applying SAX transformation.",
+      "type": "number",
+      "label": "Nb of PAA segments"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "result",
+      "label": "SAX",
+      "description": "The word resulting of the SAX approximation",
+      "type": "SAX_result"
+    }
+  ]
+}
