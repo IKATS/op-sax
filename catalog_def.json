@@ -6,7 +6,7 @@
   "entry_point": "sax.sax::run_sax_from_ds",
   "inputs": [
     {
-      "name": "dsname",
+      "name": "ds_name",
       "label": "DSname",
       "description": "The name of the dataset where SAX is applied",
       "type": "ds_name"
