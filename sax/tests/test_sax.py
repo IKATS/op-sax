@@ -21,9 +21,6 @@ import numpy as np
 
 from ikats.algo.sax.sax import run_sax_from_tsuid, run_sax_from_ds, run_sax_from_ts_list, LOGGER
 from ikats.core.resource.api import IkatsApi
-from ikats.core.resource.client import TemporalDataMgr
-
-TDM = TemporalDataMgr()
 
 # Log format
 LOGGER.setLevel(logging.DEBUG)
@@ -124,19 +121,19 @@ class TestSAX(TestCase):
         try:
 
             # Simple test
-            results = run_sax_from_tsuid(tdm=TDM, tsuid=ts_info['tsuid'], word_size=5, alphabet_size=5)
+            results = run_sax_from_tsuid(tsuid=ts_info['tsuid'], word_size=5, alphabet_size=5)
             self.assertEqual(results['sax_string'], 'abcde')
 
             # Simple Test but with double length to see the letter duplication
-            results = run_sax_from_tsuid(tdm=TDM, tsuid=ts_info['tsuid'], word_size=10, alphabet_size=5)
+            results = run_sax_from_tsuid(tsuid=ts_info['tsuid'], word_size=10, alphabet_size=5)
             self.assertEqual(results['sax_string'], 'aabbccddee')
 
             # See another full length (TSUID has length=10)
-            results = run_sax_from_tsuid(tdm=TDM, tsuid=ts_info['tsuid'], word_size=10, alphabet_size=10)
+            results = run_sax_from_tsuid(tsuid=ts_info['tsuid'], word_size=10, alphabet_size=10)
             self.assertEqual(results['sax_string'], 'abcdefghij')
 
             # One out of 2 elements
-            results = run_sax_from_tsuid(tdm=TDM, tsuid=ts_info['tsuid'], word_size=5, alphabet_size=10)
+            results = run_sax_from_tsuid(tsuid=ts_info['tsuid'], word_size=5, alphabet_size=10)
             self.assertEqual(results['sax_string'], 'acehj')
 
         finally:
@@ -156,13 +153,13 @@ class TestSAX(TestCase):
         try:
 
             # Run a calculation to see all TS have their SAX word computed
-            results_1 = run_sax_from_ts_list(tdm=TDM, ts_list=tsuid_list, alphabet_size=10, word_size=word_size)
+            results_1 = run_sax_from_ts_list(ts_list=tsuid_list, alphabet_size=10, word_size=word_size)
             self.assertEqual(len(results_1), len(ts_list))
             for ts in results_1:
                 self.assertEqual(len(results_1[ts]['sax_string']), word_size)
 
             # Force the usage of local mode (instead of spark mode) to see the results are the same
-            results_2 = run_sax_from_ts_list(tdm=TDM, ts_list=tsuid_list, alphabet_size=10, word_size=word_size,
+            results_2 = run_sax_from_ts_list(ts_list=tsuid_list, alphabet_size=10, word_size=word_size,
                                              activate_spark=False)
 
             for ts in results_2:
@@ -183,14 +180,14 @@ class TestSAX(TestCase):
         len_ds = 13
 
         # Run a calculation to see all TS of the dataset have their SAX word computed
-        results_1 = run_sax_from_ds(tdm=TDM, ds_name=ds_name, alphabet_size=10, word_size=word_size,
+        results_1 = run_sax_from_ds(ds_name=ds_name, alphabet_size=10, word_size=word_size,
                                     activate_spark=False)
         self.assertEqual(len(results_1), len_ds)
         for ts in results_1:
             self.assertEqual(len(results_1[ts]['sax_string']), word_size)
 
         # Run the same calculation with spark to prove the spark usage produces the same result
-        results_2 = run_sax_from_ds(tdm=TDM, ds_name=ds_name, alphabet_size=10, word_size=word_size,
+        results_2 = run_sax_from_ds(ds_name=ds_name, alphabet_size=10, word_size=word_size,
                                     activate_spark=True)
         for ts in results_2:
             self.assertEqual(len(results_2[ts]['sax_string']), len(results_1[ts]['sax_string']))
@@ -207,27 +204,27 @@ class TestSAX(TestCase):
 
             # Alphabet_size too long
             with self.assertRaises(ValueError):
-                run_sax_from_tsuid(tdm=TDM, tsuid=ts_list[0]['tsuid'], word_size=1, alphabet_size=27)
+                run_sax_from_tsuid(tsuid=ts_list[0]['tsuid'], word_size=1, alphabet_size=27)
 
             # Invalid alphabet_size (positive expected)
             with self.assertRaises(ValueError):
-                run_sax_from_tsuid(tdm=TDM, tsuid=ts_list[0]['tsuid'], word_size=1, alphabet_size=-1)
+                run_sax_from_tsuid(tsuid=ts_list[0]['tsuid'], word_size=1, alphabet_size=-1)
 
             # Invalid alphabet_size (int expected)
             with self.assertRaises(ValueError):
-                run_sax_from_tsuid(tdm=TDM, tsuid=ts_list[0]['tsuid'], word_size=1, alphabet_size='a')
+                run_sax_from_tsuid(tsuid=ts_list[0]['tsuid'], word_size=1, alphabet_size='a')
 
             # Invalid TSUID
             with self.assertRaises(TypeError):
-                run_sax_from_tsuid(tdm=TDM, tsuid=42, word_size=1, alphabet_size=3)
+                run_sax_from_tsuid(tsuid=42, word_size=1, alphabet_size=3)
 
             # Invalid word_size (int expected)
             with self.assertRaises(ValueError):
-                run_sax_from_tsuid(tdm=TDM, tsuid=ts_list[0]['tsuid'], word_size='a', alphabet_size=5)
+                run_sax_from_tsuid(tsuid=ts_list[0]['tsuid'], word_size='a', alphabet_size=5)
 
             # Invalid word_size (positive expected)
             with self.assertRaises(ValueError):
-                run_sax_from_tsuid(tdm=TDM, tsuid=ts_list[0]['tsuid'], word_size=-1, alphabet_size=5)
+                run_sax_from_tsuid(tsuid=ts_list[0]['tsuid'], word_size=-1, alphabet_size=5)
 
         finally:
             # Clean up database

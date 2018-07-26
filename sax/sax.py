@@ -20,8 +20,7 @@ import numpy as np
 from ikats.core.data.ts import TimestampedMonoVal
 from ikats.core.library.spark import ScManager, ListAccumulatorParam
 from ikats.algo.paa import run_paa
-
-from ikats.core.resource.client import TemporalDataMgr
+from ikats.core.resource.api import IkatsApi
 
 LOGGER = logging.getLogger(__name__)
 
@@ -44,13 +43,13 @@ class SAX(object):
         .. code-block:: python
 
             # Compute SAX on a dataset
-            r = run_sax_from_ds(tdm, ds_name='Portfolio', alphabet_size=5, word_size=3, normalize=True)
+            r = run_sax_from_ds(ds_name='Portfolio', alphabet_size=5, word_size=3, normalize=True)
 
             # Compute SAX on a list of TSUID
-            r = run_sax_from_ts_list(tdm=tdm, ts_list=tsuid_list, word_size=3, alphabet_size=5, normalize=False)
+            r = run_sax_from_ts_list(ts_list=tsuid_list, word_size=3, alphabet_size=5, normalize=False)
 
             # Compute SAX on a single TSUID
-            r = run_sax_from_tsuid(tdm, '0123456789', word_size=3, alphabet_size=5, normalize=True)
+            r = run_sax_from_tsuid('0123456789', word_size=3, alphabet_size=5, normalize=True)
     """
 
     @classmethod
@@ -134,12 +133,9 @@ class SAX(object):
         return ''.join([chr(x) for x in word_list])
 
 
-def run_sax_from_ds(tdm, ds_name, alphabet_size, word_size, normalize=False, activate_spark=None):
+def run_sax_from_ds(ds_name, alphabet_size, word_size, normalize=False, activate_spark=None):
     """
     Perform the Symbolic Aggregate Approximation (SAX) on the dataset provided in **ds_name**
-
-    :param tdm: temporal data manager object
-    :type tdm: TemporalDataMgr
 
     :param ds_name: dataset name
     :type ds_name: str
@@ -160,13 +156,11 @@ def run_sax_from_ds(tdm, ds_name, alphabet_size, word_size, normalize=False, act
     :rtype: list
     """
     # Get the tsuid list from the dataset
-    # The check of the ds_name type is performed inside tdm
-    tsuid_list = tdm.get_data_set(ds_name)['ts_list']
+    tsuid_list = IkatsApi.ds.read(ds_name=ds_name)["ts_list"]
 
     # Call the calculation of the paa on the tsuid_list gathered
     # The check on the ts_list is performed in run_paa_from_ts_list
-    result = run_sax_from_ts_list(tdm=tdm,
-                                  ts_list=tsuid_list,
+    result = run_sax_from_ts_list(ts_list=tsuid_list,
                                   word_size=word_size,
                                   alphabet_size=alphabet_size,
                                   activate_spark=activate_spark,
@@ -174,7 +168,7 @@ def run_sax_from_ds(tdm, ds_name, alphabet_size, word_size, normalize=False, act
     return result
 
 
-def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False, activate_spark=None):
+def run_sax_from_ts_list(ts_list, alphabet_size, word_size, normalize=False, activate_spark=None):
     """
     Perform the Symbolic Aggregate Approximation (SAX) on the TSUID list provided in **ts_list**
 
@@ -182,9 +176,6 @@ def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False
 
     .. note::
         If spark fails. The local computation will be performed
-
-    :param tdm: temporal data manager object
-    :type tdm: TemporalDataMgr
 
     :param ts_list: tsuid list of the TS to calculate the PAA timeseries
     :type ts_list: list
@@ -210,7 +201,7 @@ def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False
     # Define if spark is necessary
     if activate_spark is None:
 
-        md = tdm.get_meta_data(ts_list)
+        md = IkatsApi.md.read(ts_list=ts_list)
         sum_points = 0
         for tsuid in md:
             if 'qual_nb_points' in md[tsuid]:
@@ -235,8 +226,6 @@ def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False
 
         # Create a broadcast for spark jobs
         broadcast = spark_context.broadcast({
-            "host": tdm.host,
-            "port": tdm.port,
             "alphabet_size": alphabet_size,
             "word_size": word_size,
             "normalize": normalize,
@@ -252,10 +241,7 @@ def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False
             :param working_tsuid: rdd item
             """
 
-            spark_tdm = TemporalDataMgr(host=broadcast.value['host'], port=broadcast.value['port'])
-
-            results = run_sax_from_tsuid(tdm=spark_tdm,
-                                         tsuid=working_tsuid,
+            results = run_sax_from_tsuid(tsuid=working_tsuid,
                                          alphabet_size=broadcast.value['alphabet_size'],
                                          word_size=broadcast.value['word_size'],
                                          normalize=broadcast.value['normalize'])
@@ -284,8 +270,7 @@ def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False
         LOGGER.info("Running SAX on single instance")
 
         for ts in ts_list:
-            results[ts] = run_sax_from_tsuid(tdm=tdm,
-                                             tsuid=ts,
+            results[ts] = run_sax_from_tsuid(tsuid=ts,
                                              alphabet_size=alphabet_size,
                                              word_size=word_size,
                                              normalize=normalize)
@@ -295,12 +280,9 @@ def run_sax_from_ts_list(tdm, ts_list, alphabet_size, word_size, normalize=False
     return results
 
 
-def run_sax_from_tsuid(tdm, tsuid, word_size, alphabet_size=None, normalize=False):
+def run_sax_from_tsuid(tsuid, word_size, alphabet_size=None, normalize=False):
     """
     Perform the Symbolic Aggregate Approximation (SAX) on the TSUID provided in **tsuid**
-
-    :param tdm: temporal data manager object
-    :type tdm: TemporalDataMgr
 
     :param tsuid: TSUID of the TS to calculate the SAX
     :type tsuid: str
@@ -325,7 +307,7 @@ def run_sax_from_tsuid(tdm, tsuid, word_size, alphabet_size=None, normalize=Fals
         raise TypeError("TSUID must be a string (got %s)" % type(tsuid))
 
     # Get the TS content
-    ts_dps = tdm.get_ts(tsuid_list=[tsuid])[0]
+    ts_dps = IkatsApi.ts.read(tsuid_list=[tsuid])[0]
     ts_values = TimestampedMonoVal(ts_dps)
 
     # Call the calculation of the SAX on the content
